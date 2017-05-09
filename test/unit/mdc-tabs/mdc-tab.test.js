@@ -104,7 +104,6 @@ test('adapter#removeClass removes a class from the root element', () => {
   const {root, component} = setupTest();
 
   root.classList.add('foo');
-  assert.isTrue(root.classList.contains('foo'));
   component.getDefaultFoundation().adapter_.removeClass('foo');
   assert.isFalse(root.classList.contains('foo'));
 });

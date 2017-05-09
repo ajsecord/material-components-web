@@ -57,17 +57,6 @@ function setupTest() {
   return {fixture, root, indicator, component, foundation};
 }
 
-const createMockHandler = () => {
-  let changeHandler;
-  const {component} = setupTest();
-
-  td.when(component.getDefaultFoundation().adapter_.bindOnMDCTabSelectedEvent()).thenDo((fn) => {
-    changeHandler = fn;
-  });
-
-  return {changeHandler};
-};
-
 suite('MDCTabBar');
 
 test('attachTo returns a component instance', () => {
@@ -153,10 +142,19 @@ test('adapter#bindOnMDCTabSelectedEvent adds event listener for MDCTab:selected 
 });
 
 test('on MDCTab:selected if tab is not in tab bar, throw Error', () => {
+  const {component} = setupTest();
   const tab = new MockTab();
-  const {changeHandler} = createMockHandler();
 
-  assert.throws(() => changeHandler({detail: {tab}}));
+  // This is purely to make sure that bindOnMDCTabSelectedEvent() is executed
+  // and does not throw.
+  component.getDefaultFoundation().adapter_.bindOnMDCTabSelectedEvent();
+
+  // NOTE: Because of this issue: https://bugs.chromium.org/p/chromium/issues/detail?id=239648#
+  // Chai cannot observe an error thrown as a result of an event being dispatched.
+  const evtObj = {
+    detail: {tab},
+  };
+  assert.throws(() => component.tabSelectedHandler_(evtObj));
 });
 
 test('adapter#unbindOnMDCTabSelectedEvent removes listener from component', () => {
